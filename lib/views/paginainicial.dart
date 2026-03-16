@@ -32,7 +32,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
         title: const Text(
           'APP Meus livros',
           textAlign: TextAlign.start,
-          style: TextStyle(fontSize: 14.0, color: Colors.teal),
+          style: TextStyle(fontSize: 14.0, color: Colors.deepPurple),
         ),
       ),
       // SingleChildScrollView evita erros de overflow em telas pequenas ou modo paisagem
@@ -54,7 +54,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                 'MEUS LIVROS',
                 style: TextStyle(
                   fontSize: larguraTela * 0.07, // Fonte proporcional à largura
-                  color: Colors.teal,
+                  color: Colors.deepPurple,
                   fontWeight: FontWeight.bold,
                   fontFamily: "Raleway",
                 ),

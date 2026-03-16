@@ -32,8 +32,10 @@ class _ListaLivrosState extends State<ListaLivros> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Meus Livros Cadastrados",
-            style: TextStyle(color: Colors.teal)),
-        centerTitle: true,
+            style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.deepPurple,
+        centerTitle: false,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Column(
         children: [
@@ -88,7 +90,7 @@ class _ListaLivrosState extends State<ListaLivros> {
                           // Arquiva as informações necessárias
                           final livroExcluido = item;
 
-                          // CAPTURAMOS O MESSENGER ANTES DO ASYNC GAP
+                          // CAPTURA O MESSENGER ANTES DO ASYNC GAP
                           final messenger = ScaffoldMessenger.of(context);
 
                           //Atualiza a interface
@@ -122,13 +124,17 @@ class _ListaLivrosState extends State<ListaLivros> {
                           margin: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 5),
                           child: ListTile(
-                            leading: const Icon(Icons.book, color: Colors.teal),
+                            leading: const Icon(Icons.book,
+                                color: Colors.deepPurple),
                             title: Text(item.titulo ?? "Sem título",
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold)),
                             subtitle: Text(item.autor ?? "Autor não informado"),
-                            trailing:
-                                const Icon(Icons.arrow_forward_ios, size: 16),
+                            trailing: const Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                              color: Colors.deepPurple,
+                            ),
                             onTap: () {
                               Navigator.push(
                                 context,
@@ -152,8 +158,8 @@ class _ListaLivrosState extends State<ListaLivros> {
                 icon: const Icon(Icons.home),
                 label: const Text("VOLTAR AO MENU INICIAL"),
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    foregroundColor: Colors.black87),
+                    backgroundColor: Colors.purpleAccent,
+                    foregroundColor: Colors.white),
                 onPressed: () => Navigator.pop(context),
               ),
             ),
