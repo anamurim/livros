@@ -14,8 +14,8 @@ class _SobreState extends State<Sobre> {
       appBar: AppBar(
         title: const Text('Sobre a Aplicação',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.cyan,
-        centerTitle: true,
+        backgroundColor: Colors.deepPurple,
+        centerTitle: false,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
@@ -26,7 +26,7 @@ class _SobreState extends State<Sobre> {
             const SizedBox(height: 10),
             CircleAvatar(
               radius: 60,
-              backgroundColor: Colors.cyan.withOpacity(0.1),
+              backgroundColor: Colors.deepPurple.withValues(alpha: 0.1),
               child: Image.asset(
                 'img/estudos.png',
                 width: 80,
@@ -40,7 +40,7 @@ class _SobreState extends State<Sobre> {
               style: TextStyle(
                 fontSize: 26.0,
                 fontWeight: FontWeight.bold,
-                color: Colors.cyan,
+                color: Colors.deepPurple,
               ),
             ),
             const SizedBox(height: 10),
@@ -65,7 +65,7 @@ class _SobreState extends State<Sobre> {
                   children: [
                     const Row(
                       children: [
-                        Icon(Icons.code, color: Colors.cyan),
+                        Icon(Icons.code, color: Colors.deepPurple),
                         SizedBox(width: 10),
                         Text(
                           "Desenvolvedores",
@@ -81,7 +81,7 @@ class _SobreState extends State<Sobre> {
                       children: [
                         Icon(Icons.info_outline, color: Colors.grey, size: 20),
                         SizedBox(width: 10),
-                        Text("Versão 1.0.0",
+                        Text("Versão 1.1.0",
                             style: TextStyle(color: Colors.grey)),
                       ],
                     ),
@@ -93,7 +93,7 @@ class _SobreState extends State<Sobre> {
             const SizedBox(height: 20),
 
             // Imagem de Rodapé Decorativa
-            Opacity(
+            /*Opacity(
               opacity: 0.8,
               child: Image.asset(
                 'img/literatura.png',
@@ -101,7 +101,7 @@ class _SobreState extends State<Sobre> {
                 height: 120,
                 fit: BoxFit.contain,
               ),
-            ),
+            ),*/
           ],
         ),
       ),
