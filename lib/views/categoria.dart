@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 //import 'package:flutter/widgets.dart';
-import 'formlivros.dart';
+import 'cadastro_livro_pagina.dart';
 import 'paginainicial.dart';
 import 'sobre.dart';
 
@@ -83,8 +83,10 @@ class _CategoriaState extends State<Categoria> {
                       builder: (context) => const PaginaInicial()));
             }
             if (_selectedPage == 1) {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const FormLivros()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const CadastrarLivros()));
             }
             if (_selectedPage == 2) {
               Navigator.push(context,
