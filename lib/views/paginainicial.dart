@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:livros/views/cadastro_livro_pagina.dart';
 import 'package:livros/views/listalivro.dart';
 import 'package:livros/views/sobre.dart';
+import 'package:livros/views/lista_literatura.dart';
+import 'package:livros/views/lista_didaticos.dart';
+import 'package:livros/views/lista_hqs_mangas.dart';
+import 'package:livros/views/lista_auto_ajuda.dart';
+import 'package:livros/views/lista_outros.dart';
 
 class PaginaInicial extends StatefulWidget {
   const PaginaInicial({super.key});
@@ -50,7 +55,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                   ),
                 ),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
               const Text(
                 "Adquira cultura",
                 style: TextStyle(
@@ -64,7 +69,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                 "Sua biblioteca pessoal inteligente",
                 style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
-              const SizedBox(height: 35),
+              const SizedBox(height: 25),
               // Menu de Opções
               Expanded(
                 child: Padding(
@@ -91,23 +96,38 @@ class _PaginaInicialState extends State<PaginaInicial> {
                       _buildMenuButton(
                         context,
                         "Literatura",
-                        Icons.menu_book,
+                        Icons.auto_stories,
                         const Color.fromARGB(255, 255, 51, 177), // Pink
-                        null,
+                        const ListaLiteratura(),
                       ),
                       _buildMenuButton(
                         context,
                         "Didáticos",
                         Icons.school,
                         const Color.fromARGB(174, 241, 60, 145), // Rosa claro
-                        null,
+                        //null,
+                        const ListaDidaticos(),
                       ),
                       _buildMenuButton(
                         context,
                         "HQs/Mangás",
-                        Icons.auto_stories,
+                        Icons.menu_book,
                         const Color.fromARGB(255, 62, 3, 87), // Roxo
-                        null,
+                        const ListaHqsMangas(),
+                      ),
+                      _buildMenuButton(
+                        context,
+                        "Auto Ajuda",
+                        Icons.self_improvement,
+                        const Color.fromARGB(255, 185, 0, 231), // Roxo
+                        const ListaAutoAjuda(),
+                      ),
+                      _buildMenuButton(
+                        context,
+                        "Outros livros",
+                        Icons.self_improvement,
+                        const Color.fromARGB(255, 156, 3, 92), // Roxo
+                        const ListaOutros(),
                       ),
                       _buildMenuButton(
                         context,

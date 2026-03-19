@@ -22,8 +22,9 @@ class _CadastrarLivrosState extends State<CadastrarLivros> {
   late TextEditingController _controllerIdioma;
   late TextEditingController _controllerAno;
   late TextEditingController _controllerSinopse;
+  late TextEditingController _controllerEmprestimo;
 
-  String _opcao = "Comprar";
+  String _status = "Comprar";
   String _categoria = "Livro Didático";
   double _avaliacao = 0;
   File? _imagemSelecionada;
@@ -43,10 +44,14 @@ class _CadastrarLivrosState extends State<CadastrarLivros> {
         text: widget.livroParaEditar?.ano?.toString() ?? "");
     _controllerSinopse =
         TextEditingController(text: widget.livroParaEditar?.sinopse ?? "");
+    _controllerEmprestimo = TextEditingController(
+        text: widget.livroParaEditar?.emprestadoPara ?? "");
+    // Certifique-se que o status inicial está correto
+    _status = widget.livroParaEditar?.status ?? "Comprar";
 
     if (widget.livroParaEditar != null) {
       _avaliacao = widget.livroParaEditar!.avaliacao ?? 0;
-      _opcao = widget.livroParaEditar!.opcao ?? "Comprar";
+      _status = widget.livroParaEditar!.status ?? "Comprar";
       _categoria = widget.livroParaEditar!.categoria ?? "Livro Didático";
       if (widget.livroParaEditar!.capa != null) {
         _imagemSelecionada = File(widget.livroParaEditar!.capa!);
@@ -56,33 +61,13 @@ class _CadastrarLivrosState extends State<CadastrarLivros> {
 
   Future<void> _selecionarFoto() async {
     final picker = ImagePicker();
-    final image = await picker.pickImage(source: ImageSource.gallery);
+    final image = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 800, // Importante para reduzir o uso de memória
+      imageQuality: 85,
+    );
     if (image != null) {
       setState(() => _imagemSelecionada = File(image.path));
-    }
-  }
-
-  void _enviarFormulario() async {
-    if (_chaveForm.currentState!.validate()) {
-      final livro = Livros(
-        id: widget.livroParaEditar?.id,
-        autor: _controllerAutor.text,
-        titulo: _controllerTitulo.text,
-        editora: _controllerEditora.text,
-        idioma: _controllerIdioma.text,
-        ano: int.tryParse(_controllerAno.text) ?? 0,
-        sinopse: _controllerSinopse.text,
-        avaliacao: _avaliacao,
-        capa: _imagemSelecionada?.path,
-        opcao: _opcao,
-        categoria: _categoria,
-      );
-
-      widget.livroParaEditar != null
-          ? await bdLivro.update(livro)
-          : await bdLivro.salvar(livro);
-      if (!mounted) return;
-      Navigator.pop(context);
     }
   }
 
@@ -120,9 +105,11 @@ class _CadastrarLivrosState extends State<CadastrarLivros> {
                       icon: Icons.info_outline,
                       color: primaryColor,
                       children: [
-                        _buildField("Título", _controllerTitulo, Icons.book),
-                        _buildField("Autor", _controllerAutor, Icons.person),
-                        _buildField(
+                        _buildTextField(
+                            "Título", _controllerTitulo, Icons.book),
+                        _buildTextField(
+                            "Autor", _controllerAutor, Icons.person),
+                        _buildTextField(
                             "Editora", _controllerEditora, Icons.business),
                       ],
                     ),
@@ -134,13 +121,13 @@ class _CadastrarLivrosState extends State<CadastrarLivros> {
                         Row(
                           children: [
                             Expanded(
-                                child: _buildField(
+                                child: _buildTextField(
                                     "Ano", _controllerAno, Icons.calendar_today,
                                     isNum: true)),
                             const SizedBox(width: 10),
                             Expanded(
-                                child: _buildField("Idioma", _controllerIdioma,
-                                    Icons.language)),
+                                child: _buildTextField("Idioma",
+                                    _controllerIdioma, Icons.language)),
                           ],
                         ),
                         const SizedBox(height: 15),
@@ -149,8 +136,14 @@ class _CadastrarLivrosState extends State<CadastrarLivros> {
                                 fontWeight: FontWeight.bold,
                                 color: Colors.grey)),
                         DropdownButtonFormField<String>(
-                          value: _categoria,
-                          items: ["Livro Didático", "Literatura", "HQ/Mangá"]
+                          initialValue: _categoria,
+                          items: [
+                            "Livro Didático",
+                            "Literatura",
+                            "HQ/Mangá",
+                            "Autoajuda",
+                            "Outro"
+                          ]
                               .map((c) =>
                                   DropdownMenuItem(value: c, child: Text(c)))
                               .toList(),
@@ -165,39 +158,65 @@ class _CadastrarLivrosState extends State<CadastrarLivros> {
                       icon: Icons.star_outline,
                       color: Colors.deepPurpleAccent,
                       children: [
-                        const Text("Situação do Livro",
+                        const Text("Status do Livro",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.grey)),
-                        ...['Comprar', 'Lido', 'Na prateleira', 'Lendo']
-                            .map((opt) => RadioListTile(
-                                  title: Text(opt),
-                                  value: opt,
-                                  groupValue: _opcao,
-                                  activeColor: primaryColor,
-                                  onChanged: (v) => setState(() => _opcao = v!),
-                                )),
-                        const Divider(),
-                        const Center(
-                            child: Text("Sua Avaliação",
-                                style: TextStyle(fontWeight: FontWeight.bold))),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
-                              5,
-                              (index) => IconButton(
-                                    icon: Icon(
-                                        index < _avaliacao
-                                            ? Icons.star
-                                            : Icons.star_border,
-                                        color: Colors.amber),
-                                    onPressed: () => setState(
-                                        () => _avaliacao = index + 1.0),
-                                  )),
+                        DropdownButtonFormField<String>(
+                          initialValue: _status,
+                          items: [
+                            "Comprar",
+                            "Lido",
+                            "Lendo",
+                            "Na prateleira",
+                            "Emprestado"
+                          ]
+                              .map((c) =>
+                                  DropdownMenuItem(value: c, child: Text(c)))
+                              .toList(),
+                          onChanged: (v) => setState(() => _status = v!),
+                          decoration: const InputDecoration(
+                              border: UnderlineInputBorder()),
                         ),
-                        _buildField(
+                        if (_status == "Emprestado")
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: _buildTextField(
+                                "Emprestado para quem?",
+                                _controllerEmprestimo,
+                                Icons.person_pin_rounded),
+                          ),
+                        const SizedBox(height: 10),
+                        // const Divider(),
+                        const SizedBox(height: 15),
+                        if (_status == "Lido" || _status == "Emprestado")
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Divider(),
+                              const Text("Sua Avaliação",
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: List.generate(
+                                    5,
+                                    (index) => IconButton(
+                                          icon: Icon(
+                                              index < _avaliacao
+                                                  ? Icons.star
+                                                  : Icons.star_border,
+                                              color: Colors.amber),
+                                          onPressed: () => setState(
+                                              () => _avaliacao = index + 1.0),
+                                        )),
+                              ),
+                            ],
+                          ),
+
+                        _buildTextField(
                             "Sinopse", _controllerSinopse, Icons.description,
-                            maxLines: 3),
+                            maxLines: 5),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -230,41 +249,16 @@ class _CadastrarLivrosState extends State<CadastrarLivros> {
   }
 
   Widget _buildImagePicker(Color color) {
-    return Center(
-      child: GestureDetector(
-        onTap: _selecionarFoto,
-        child: Stack(
-          children: [
-            Container(
-              height: 160,
-              width: 120,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 10,
-                      offset: const Offset(0, 4))
-                ],
-              ),
-              child: _imagemSelecionada == null
-                  ? const Icon(Icons.add_a_photo, size: 40, color: Colors.grey)
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child:
-                          Image.file(_imagemSelecionada!, fit: BoxFit.cover)),
-            ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: CircleAvatar(
-                  backgroundColor: color,
-                  radius: 18,
-                  child: const Icon(Icons.edit, size: 18, color: Colors.white)),
-            ),
-          ],
-        ),
+    return GestureDetector(
+      onTap: _selecionarFoto,
+      child: CircleAvatar(
+        radius: 70,
+        backgroundColor: Colors.grey[300],
+        backgroundImage:
+            _imagemSelecionada != null ? FileImage(_imagemSelecionada!) : null,
+        child: _imagemSelecionada == null
+            ? const Icon(Icons.camera_alt, size: 40)
+            : null,
       ),
     );
   }
@@ -275,7 +269,7 @@ class _CadastrarLivrosState extends State<CadastrarLivros> {
       required Color color,
       required List<Widget> children}) {
     return Card(
-      elevation: 2,
+      //elevation: 2,
       margin: const EdgeInsets.only(bottom: 20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
@@ -302,17 +296,22 @@ class _CadastrarLivrosState extends State<CadastrarLivros> {
     );
   }
 
-  Widget _buildField(String label, TextEditingController ctrl, IconData icon,
+  Widget _buildTextField(
+      String label, TextEditingController ctrl, IconData icon,
       {int maxLines = 1, bool isNum = false}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(vertical: 5),
       child: TextFormField(
         controller: ctrl,
         maxLines: maxLines,
         keyboardType: isNum ? TextInputType.number : TextInputType.text,
         decoration: InputDecoration(
           labelText: label,
-          prefixIcon: Icon(icon, size: 20, color: const Color(0xFF4A148C)),
+          alignLabelWithHint: true,
+          prefixIcon: Padding(
+            padding: EdgeInsets.only(bottom: maxLines > 1 ? 70 : 0),
+            child: Icon(icon, color: const Color(0xFF4A148C)),
+          ),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           filled: true,
           fillColor: Colors.grey[50],
@@ -320,5 +319,32 @@ class _CadastrarLivrosState extends State<CadastrarLivros> {
         validator: (v) => v!.isEmpty ? "Obrigatório" : null,
       ),
     );
+  }
+
+  void _enviarFormulario() async {
+    if (_chaveForm.currentState!.validate()) {
+      final livro = Livros(
+        id: widget.livroParaEditar?.id,
+        autor: _controllerAutor.text,
+        titulo: _controllerTitulo.text,
+        editora: _controllerEditora.text,
+        idioma: _controllerIdioma.text,
+        ano: int.tryParse(_controllerAno.text) ?? 0,
+        sinopse: _controllerSinopse.text,
+        avaliacao:
+            (_status == "Lido" || _status == "Emprestado") ? _avaliacao : 0.0,
+        capa: _imagemSelecionada?.path,
+        status: _status,
+        categoria: _categoria,
+        emprestadoPara:
+            _status == "Emprestado" ? _controllerEmprestimo.text : null,
+      );
+
+      widget.livroParaEditar != null
+          ? await bdLivro.update(livro)
+          : await bdLivro.salvar(livro);
+      if (!mounted) return;
+      Navigator.pop(context);
+    }
   }
 }

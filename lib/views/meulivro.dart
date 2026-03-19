@@ -101,6 +101,11 @@ class _MeuLivroState extends State<MeuLivro> {
                           livroAtual.idioma ?? "Não informado"),
                       _buildInfoRow(Icons.category, "Categoria",
                           livroAtual.categoria ?? "Geral"),
+                      _buildInfoRow(Icons.check_circle, "Status",
+                          livroAtual.status ?? "Não informado"),
+                      if (livroAtual.status == "Emprestado")
+                        _buildInfoRow(Icons.handshake, "Emprestado para",
+                            livroAtual.emprestadoPara ?? 'Não informado'),
                     ],
                   ),
 

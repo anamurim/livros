@@ -6,6 +6,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:livros/models/cadastralivros.dart';
 
 class BDLivro {
+  // Padrão Singleton
+  static final BDLivro _instance = BDLivro._internal();
+  factory BDLivro() => _instance;
+  BDLivro._internal();
+
   static Database? _bd;
   static const String table = 'livro';
 
@@ -15,18 +20,32 @@ class BDLivro {
     return _bd!;
   }
 
-  initBd() async {
+  Future<Database> initBd() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, "livro.db");
     return await openDatabase(
       path,
-      version: 2, // Aumentou a versão
+      version: 5,
       onCreate: _onCreate,
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
           await db.execute("ALTER TABLE livro ADD COLUMN sinopse TEXT;");
           await db.execute("ALTER TABLE livro ADD COLUMN avaliacao REAL;");
           await db.execute("ALTER TABLE livro ADD COLUMN capa TEXT;");
+        }
+        if (oldVersion < 5) {
+          try {
+            // Tentamos adicionar as colunas caso elas não existam
+            await db.execute(
+                "ALTER TABLE livro ADD COLUMN status TEXT DEFAULT 'Comprar';");
+            await db
+                .execute("ALTER TABLE livro ADD COLUMN emprestadoPara TEXT;");
+            await db.execute("ALTER TABLE $table ADD COLUMN status TEXT;");
+            await db
+                .execute("ALTER TABLE $table ADD COLUMN emprestadoPara TEXT;");
+          } catch (e) {
+            print("Colunas já existem ou erro na migração: $e");
+          }
         }
       },
     );
@@ -36,16 +55,17 @@ class BDLivro {
     await bd.execute('''
           CREATE TABLE $table (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            autor TEXT NOT NULL,
+            capa TEXT,
             titulo TEXT NOT NULL,
+            autor TEXT NOT NULL,
             editora TEXT NOT NULL,
-            idioma TEXT NOT NULL,
             ano INTEGER NOT NULL,
-            opcao TEXT NOT NULL,
+            idioma TEXT NOT NULL,
             categoria TEXT NOT NULL,
-            sinopse TEXT,
+            status TEXT,           
             avaliacao REAL,
-            capa TEXT
+            sinopse TEXT,
+            emprestadoPara TEXT
           )
     ''');
   }
@@ -58,7 +78,7 @@ class BDLivro {
   Future<List<Livros>> getLivros() async {
     var bdLivro = await bd;
     List<Map<String, dynamic>> maps = await bdLivro.query(table);
-    return List.generate(maps.length, (i) => Livros.fromMap(maps[i]));
+    return maps.map((e) => Livros.fromMap(e)).toList();
   }
 
   Future<int> update(Livros livro) async {
